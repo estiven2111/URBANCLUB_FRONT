@@ -35,9 +35,8 @@ const NewPassword = () => {
       ).length === 0
     ) {
       try {
-        const updatedPassword = await axios.put(  
-          // `http://localhost:3001/artist/newPassword/${id}/${token}`,
-          `https://pruebaback-production-0050.up.railway.app/artist/newPassword/${id}/${token}`,
+        const updatedPassword = await axios.put(
+          `/artist/newPassword/${id}/${token}`,
           password
         );
         setPassword({ password: "" });

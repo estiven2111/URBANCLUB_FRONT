@@ -16,8 +16,8 @@ const ForgotPassword = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    axios.put("https://pruebaback-production-0050.up.railway.app/artist/forgotPassword", input);
-    // axios.put("http://localhost:3001/artist/forgotPassword", input);
+    // axios.put("https://pruebaback-production-0050.up.railway.app/artist/forgotPassword", input);
+    axios.put("/artist/forgotPassword", input);
     setInput({
       email: "",
     });
