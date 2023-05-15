@@ -3,7 +3,7 @@ import styles from "./Login.module.css";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/authSlice";
-import GoogleButton from "react-google-button";
+import GoogleButton from "../GoogleButton/googleButton";
 
 function Login() {
   const dispatch = useDispatch();
@@ -13,13 +13,15 @@ function Login() {
     password: "",
   });
 
-  const handleClick = async () => {
-    // const googleLoginURL = "https://pruebaback-production-0050.up.railway.app/artist/auth/google"
-    const googleLoginURL = "/artist/auth/google"
-    const newWindow = window.open(googleLoginURL, "blank", "width=500, height=600");
-    
-  }
-
+  const handleClick = async () => {  
+    const googleLoginURL = "https://pruebaback-production-0050.up.railway.app/artist/auth/google";
+    // const googleLoginURL = "http://localhost:3001/artist/auth/google";
+    const newWindow = window.open(
+      googleLoginURL,
+      "blank",
+      "width=500, height=600"
+    );
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -39,9 +41,7 @@ function Login() {
   //Acá te lo muestra ###
   return (
     <div className={styles.formularioExternoLogin}>
-      <div
-        className={`${styles.formularioContainer} ${styles.formularioBackground}`}
-      >
+      <div className={styles.formularioContainer}>
         <form onSubmit={handleSubmit} className={styles.formContainer}>
           <div className={styles.formContainerLeft}>
             <label className={styles.formLoginTitle}>
@@ -88,7 +88,7 @@ function Login() {
             <label>
               <NavLink to="/forgotPassword">¿Olvidaste tu contraseña?</NavLink>
             </label>
-            <GoogleButton onClick={handleClick} style={{display: "none"}}/>
+            <GoogleButton></GoogleButton>
           </div>
         </form>
       </div>

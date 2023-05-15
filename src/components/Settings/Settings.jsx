@@ -18,7 +18,7 @@ function Settings({
         <button onClick={handleShowEdit}>Editar perfil</button>
       </div>
       <div className={style.divSettings}>
-        <button onClick={handleLogout}>Logout</button>
+        <button onClick={handleLogout}>Cerrar sesión</button>
       </div>
       <div className={style.divSettings}>
         <button onClick={handlePasswordChange}>Cambiar contraseña</button>
@@ -27,7 +27,7 @@ function Settings({
       <div className={style.divSettings}>
         <button onClick={handleShowCreateEvent}>Crear evento</button>
       </div>
-      <NavLink to="/updatePassword/:id" />
+      {/* <NavLink to="/updatePassword/:id" /> */}
       <div className={style.divSettingsD}>
         <button onClick={handleDeleteAccount}>Eliminar Cuenta</button>
       </div>

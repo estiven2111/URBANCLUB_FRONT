@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import axios from 'axios';
-import { loginSuccess, logout } from './authSlice';
+import { loginSuccess, logout, loginUpdatePhoto } from './authSlice';
 import swal from 'sweetalert'
 
 const initialState = {
@@ -10,8 +10,10 @@ const initialState = {
   allUsuariosArt: [],
   errorForm: {},
   copiArtista: [],
-  categoria: [],
-  errorId: ""
+  categories: [],
+  errorId: "",
+  locations: [],
+  pag: 1,
 }
 
 
@@ -31,7 +33,7 @@ export const artistSlice = createSlice({
       return {
         ...state,
         allUsuarios: action.payload,
-        categoria: action.payload,
+
 
       }
     },
@@ -107,19 +109,76 @@ export const artistSlice = createSlice({
         ...state,
         usuario: action.payload
       }
-    }
+    },
+
+    getAllCategoriesSuccess(state, action) {
+      return {
+        ...state,
+        categories: action.payload,
+
+      }
+    },
+
+    getAllLocationsSuccess(state, action) {
+      return {
+        ...state,
+        locations: action.payload,
+
+      }
+    },
+
+    pagNumSuccess(state, action) {
+      return {
+        ...state,
+        pag: action.payload,
+
+      }
+    },
 
   }
 
 });
 
+
+export const pagNum = (number) => {
+  return async (dispatch) => {
+    dispatch(pagNumSuccess(number));
+  };
+};
+
+export const getAllCategories = () => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.get(`/search/`);
+      const categories = response.data;
+      // console.log(categories);
+      return dispatch(getAllCategoriesSuccess(categories));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
+
 export const FilterArtists = (categoria, ubicacion, events) => {
   return async (dispatch) => {
-    const apiData = await axios.get(`/search/resultados?categoria=${categoria}&ubicacion=${ubicacion}&events=${events}`);//`/search/resultados?categoria=${categoria}`
+    const apiData = await axios.get(`/search/artists?categoria=${categoria}&ubicacion=${ubicacion}&events=${events}`);//`/search/resultados?categoria=${categoria}`
     const artist = apiData.data.artistas;
-   
+
     return dispatch(getFilterArtists(artist));
   };
+};
+
+export const getAllLocations = () => {
+  return async (dispatch) => {
+    try {
+      const result = await axios.get(`/search/locations`);
+      const location = result.data;
+      // console.log(location);
+      return dispatch(getAllLocationsSuccess(location));
+    } catch (error) {
+      console.log(error);
+    }
+  }
 };
 
 
@@ -137,11 +196,11 @@ export const getArtistId = (id) => {
     try {
       const apiData = await axios.get(`/artist/${id}`);
       const artist = apiData.data;
-      
-      return dispatch(getArtistIdSuccess(artist));
+      dispatch(getArtistIdSuccess(artist));
+      return artist
 
     } catch (error) {
-    
+
       if (error.response.data.message)
         return dispatch(getArtistIdError(error.response.data.message));
     }
@@ -186,9 +245,9 @@ export const postArtist = (payload, navigate) => {
       const result = apiData.data;
       if (result.error) {
         return dispatch(setErrors(result))
-        
+
       }
-    
+
       dispatch(postArtistSuccess());
       dispatch(loginSuccess(result))
       dispatch(clearErrors())
@@ -199,7 +258,7 @@ export const postArtist = (payload, navigate) => {
         buttons: "Aceptar"
       }).then(res => {
         if (res) {
-           navigate("/")
+          navigate("/")
         }
       })
 
@@ -256,12 +315,15 @@ export const updateArtist = (id, input) => {
     try {
       const apiData = await axios.put(`/artist/update/${id}`, input);
       const response = apiData.data;
-      
-      dispatch(updateArtistSuccess(response));
+      console.log(response);
+
+      dispatch(loginUpdatePhoto(response.profilePhoto))
+      dispatch(updateArtistSuccess(response))
+      return response;
     } catch (error) {
       swal({
         title: "ERROR",
-        text: error,
+        text: error.message,
         icon: "warning",
         buttons: "Aceptar"
       })
@@ -275,7 +337,7 @@ export const forgotPassword = (email) => {
     try {
       const apiData = await axios.put("/forgotPassword", email)
       const response = apiData.data;
-    
+
     } catch (error) {
       swal({
         title: "ERROR",
@@ -290,6 +352,9 @@ export const forgotPassword = (email) => {
 
 
 export const {
+  pagNumSuccess,
+  getAllCategoriesSuccess,
+  getAllLocationsSuccess,
   getFilterArtists,
   getArtistIdSuccess,
   getArtistIdError,

@@ -11,7 +11,7 @@ import {
 } from "../../redux/artistSlice";
 import swal from "sweetalert";
 //import { getauth, clearProfile } from "../../redux/artistSlice";
-import { logout } from "../../redux/authSlice";
+import { logout, loginUpdatePhoto } from "../../redux/authSlice";
 import { deleteEvent } from "../../redux/eventSlice";
 
 import { useNavigate } from "react-router-dom";
@@ -23,23 +23,30 @@ import Error404 from "../Error404/Errors404";
 import CreateEvent from "../createEvent/CreateEvent";
 import { getAllEvents } from "../../redux/eventSlice";
 import { EM_NO_USER_ID, EM_SYNTAX_ID } from "../../utils/messages";
-import loading from "../../img/loading.gif";
-
+import axios from "axios";
+import FollowList from "../FollowList/FollowList";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import YouTubeIcon from "@mui/icons-material/YouTube";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import EmptyCard from "../Cards/CardsEvents/EmptyCard";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const Profile = () => {
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const usuario = useSelector((state) => state.artist.usuario);
-  const currentUser = useSelector((state) => state.auth.user);
+  const currentUser = useSelector((state) => state.auth);
   const errorId = useSelector((state) => state.artist.errorId);
 
   const [showSettings, setShowSettings] = useState(false);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowings, setShowFollowings] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
-  const [followDemostrativo, setFollowDemostrativo] = useState(911);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [followed, setFollowed] = useState(false);
+  const [followers, setFollowers] = useState([]);
+  const [showComponents, setShowComponents] = useState(false);
   const verified = true;
   const links = [
     {
@@ -48,7 +55,7 @@ const Profile = () => {
     },
   ];
 
-  const isCurrentUser = currentUser && currentUser.id === usuario.id;
+  const isCurrentUser = currentUser.user && currentUser.user.id === usuario.id;
 
   const {
     name,
@@ -59,38 +66,56 @@ const Profile = () => {
     city,
     ocupation,
     aboutMe,
-    events
+    events,
+    followings,
   } = usuario;
-
   const ocupationArray = ocupation && ocupation.length && ocupation.split(",");
 
   const { id } = useParams();
   const eventosRef = useRef(null);
 
-  /*   const token = localStorage.getItem("token");
- if (!token) {
-    // Redirigir a la página de inicio de sesión
-    alert('inicia sesion')
-    navigate("/login");
-    return
-  } */
   useEffect(() => {
-    // const even = await dispatch(getAllEvents());
-    // console.log(even);
-    setIsLoading(true);
-    dispatch(getArtistId(id));
-    setIsLoading(false);
-    // even.payload.map((item,index)=>{
-    // if (item.id === usu.payload.id) {
-    //   setEventconut(item.Events.length)
-    //   }})
-   
-    
-    return async () => {
+    const getFollowers = async () => {
+      try {
+        const res = await dispatch(getArtistId(id));
+        setFollowers(res.followers);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getFollowers();
+    return () => {
       //le paso un return cuando se desmonta
       dispatch(clearProfile());
+      setFollowers([]);
+      setShowFollowings(false);
+      setShowFollowers(false);
     };
   }, [id]);
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await axios.get("/artist/login/me");
+        console.log(res.data.followings);
+        setFollowed(
+          res.data.followings.some(
+            (follow) => follow.following_Id === usuario?.id
+          )
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getUser();
+  }, [usuario.id, currentUser.user.id]);
+
+  // const [prevId, setPrevId] = useState(id);
+
+  // if (id !== prevId) {
+  //   setPrevId(id);
+  //   navigate(`/profile/${id}`);
+  // }
 
   const scrollToEventos = () => {
     eventosRef.current.scrollIntoView({ behavior: "smooth" });
@@ -98,6 +123,9 @@ const Profile = () => {
 
   const handleSettings = () => {
     setShowSettings(!showSettings);
+    setShowEdit(false);
+    setShowEditPassword(false);
+    setShowComponents(!showComponents);
   };
 
   const handleShowEdit = () => {
@@ -113,8 +141,8 @@ const Profile = () => {
   };
 
   const handleOnBlur = () => {
-    setShowSettings(false)
-  }
+    setShowSettings(false);
+  };
 
   const handleDeleteAccount = () => {
     // const confirmed = window.confirm(
@@ -149,14 +177,25 @@ const Profile = () => {
       });
   };
 
-  const handleEdit = (input) => {
-    dispatch(updateArtist(id, input));
+  const handleEdit = async (input) => {
+    const artistUpdated = dispatch(updateArtist(id, input)).data;
+    console.log(input);
+    swal({
+      title: "ARTISTA ACTUALIZADO",
+      text: `Artista  ${input.name} actualizado con exito`,
+      icon: "success",
+      buttons: "Aceptar",
+    }).then(res=>{
+      if(res) window.location.reload()
+    })
+    setShowEdit(false);
+    setShowSettings(false);
   };
 
   const handleLogout = () => {
     swal({
-      title: "CERRAR SESION",
-      text: `Deseas cerrar la sesion de ${name}`,
+      title: "CERRAR SESIÓN",
+      text: `Deseas cerrar la sesión de ${name}`,
       icon: "warning",
       buttons: ["No", "Si"],
     }).then((res) => {
@@ -167,209 +206,293 @@ const Profile = () => {
     });
   };
 
-  const handleFollow = () => {
-    setFollowDemostrativo(followDemostrativo + 1);
+  const handleFollow = async () => {
+    try {
+      if (!followed && !isCurrentUser && currentUser.isAuthenticated) {
+        await axios.post(`/artist/follow/${currentUser.user.id}/follow`, {
+          followedId: `${usuario.id}`,
+        });
+        const obj = { follower_Id: currentUser.user.id };
+        setFollowers([...followers, obj]);
+        setFollowed(!followed);
+        return;
+      }
+      if (followed && !isCurrentUser && currentUser.isAuthenticated) {
+        await axios.post(`/artist/follow/${currentUser.user.id}/unfollow`, {
+          followedId: `${usuario.id}`,
+        });
+        setFollowers(
+          followers.filter(
+            (follow) => follow.follower_Id !== currentUser.user.id
+          )
+        );
+        setFollowed(!followed);
+        return;
+      }
+      swal({
+        title: "INICIAR SESIÓN",
+        text: `Inicia sesión para poder seguir a ${name}`,
+        icon: "info",
+        buttons: {
+          cancel: "Cancelar",
+          confirm: "Iniciar sesión",
+        },
+      }).then((value) => {
+        if (value) {
+          navigate("/login");
+        } else {
+          return;
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleContact = () => {
-    alert("Funcion aun no implementada 😁");
+  const handleContact = async () => {
+    if (currentUser.isAuthenticated && !isCurrentUser) {
+      const res = await axios.get(
+        `/conversation/${currentUser.user.id}/${usuario.id}`
+      );
+      navigate("/messenger");
+      return;
+    }
+    swal({
+      title: "INICIAR SESIÓN",
+      text: `Inicia sesión para poder hablar con ${name}`,
+      icon: "info",
+      buttons: {
+        cancel: "Cancelar",
+        confirm: "Iniciar sesión",
+      },
+    }).then((value) => {
+      if (value) {
+        navigate("/login");
+      } else {
+        return;
+      }
+    });
   };
- 
 
-  const islogin = useSelector((state) => state.auth);
-  const handleDeleteEvent = (id,name) => {
-  
+  const handleDeleteEvent = (id, name) => {
     swal({
       title: "ELIMINAR EVENTO",
       text: `Estas seguro de eliminar el evento ${name} `,
       icon: "warning",
       buttons: ["No", "Si"],
-    })
-      .then(async (res) => {
-        if (res && islogin.isAuthenticated) {
-          dispatch(deleteEvent(id));
-          window.location.reload()
-          // navigate(`/profile/${id}`);
-           swal({
-            title: "EVENTO ELIMINADO",
-            text: `Evento  ${name} eliminado con exito`,
-            icon: "success",
-            buttons: "Aceptar"
-          })
-        }
-      })
-    
-  }
- 
+    }).then(async (res) => {
+      if (res && currentUser.isAuthenticated) {
+        dispatch(deleteEvent(id));
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+        // window.location.reload()
+        // navigate(`/profile/${id}`);
+        swal({
+          title: "EVENTO ELIMINADO",
+          text: `Evento  ${name} eliminado con exito`,
+          icon: "success",
+          buttons: "Aceptar",
+        });
+      }
+    });
+  };
+
+  const handleOnClickFollowers = () => {
+    setShowFollowers(!showFollowers);
+    setShowFollowings(false);
+  };
+
+  const handleOnClickFollowings = () => {
+    setShowFollowings(!showFollowings);
+    setShowFollowers(false);
+  };
+
   return (
     <>
-        {(errorId && (errorId === EM_NO_USER_ID || errorId.includes(EM_SYNTAX_ID))? <Error404></Error404>:(
-
-    <div className="container">
-      <div className="portada-profile">
-        <img src={coverPhoto} alt="" />
-        <div className="rating-g">4.3</div>
-      </div>
-      <div className="prim-profile">
-        <div className="prim-ocupacion">
-          <div className="foto-ocupacion">
-            <img
-              className="foto-profile"
-              src={profilePhoto}
-              alt="Foto de perfil del artista"
-            />
+      {errorId &&
+      (errorId === EM_NO_USER_ID || errorId.includes(EM_SYNTAX_ID)) ? (
+        <Error404></Error404>
+      ) : (
+        <div className="container">
+          <div className="portada-profile">
+            <img src={coverPhoto} alt="" />
+            <div className="rating-g">4.3</div>
           </div>
-          <div className="ocupation-container">
-            {/* {usuario.ocupation?.map(o => {
-                return(
-                  <div className='ocupation'>{o}</div>
-                )
-              })} */}
-            {/* {ocupation && <div className="ocupation">{ocupation.split(",")}</div>} */}
-            {ocupationArray &&
-              ocupationArray?.map((ocupation) => (
-                <div className="ocupation" key={ocupation}>
-                  {ocupation}
-                </div>
-              ))}
-          </div>
-        </div>
-
-        <div className="info-perfil">
-          <div className="nombre-btns">
-            <div>
-              <div className="nombre">
-                <h1>
-                  {name}
-                  {/*  {lastname} */}
-                </h1>
-                {/* para saber si es verificado funcion aun no implementada */}
-                {verified && (
-                  <img
-                    className="verificado"
-                    src="https://static.vecteezy.com/system/resources/previews/014/296/309/non_2x/blue-verified-social-media-account-icon-approved-profile-sign-illustration-vector.jpg"
-                    alt="verificado paa"
-                  />
-                )}
-              </div>
-
-              <h3>
-                 {city}, {Country}
-              </h3>
-            </div>
-          </div>
-
-          <div className="stas-profile">
-            <button className="btn-stas" onClick={scrollToEventos}>
-            {events?.length + " "} Eventos  {/*  //! muestra total de eventos del artista */}
-            </button>
-            <button className="btn-stas">
-              {followDemostrativo} Seguidores
-            </button>
-            <h4>5 Seguidos</h4>
-          </div>
-          <div className="ab-re">
-            <div className="aboutme">
-              {aboutMe}
-            </div>
-            <div className="redes">
-              {links?.map((l) => {
-                return (
-                  <div className="redes-div">
-                    <h4>Otras redes!!</h4>
-                    <div className="container-links">
-                      {l.youtube && (
-                        <a
-                          href={l.youtube}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                         >
-                          <img
-                              className="icon"
-                              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYBkoHVpJNDq7zkN5eqjnF31QVBGPb7hloyw&usqp=CAU"
-                              alt="ds"
-                          />
-                        </a>
-                        )}
-
-                      {l.twitter && (
-                        <a
-                          href={l.twitter}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                        >
-                          <img
-                            className="icon"
-                            src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Logo_Twitter.png"
-                            alt="ds"
-                          />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        <div className="btns">
-          {isCurrentUser ? (
-            <div className="settings-div">
-              <button className="btn-ajustes" onClick={handleSettings}>
+          <div className="prim-profile">
+            <div className="prim-ocupacion">
+              <div className="foto-ocupacion">
                 <img
-                  className="ajustes"
-                  src="https://thumbs.dreamstime.com/b/icono-de-la-l%C3%ADnea-del-engranaje-en-fondo-negro-ilustraci%C3%B3n-vectores-estilo-plano-170443759.jpg"
-                  alt="ajuste"
+                  className="foto-profile"
+                  src={profilePhoto}
+                  alt="Foto de perfil del artista"
                 />
-              </button>
-              {showSettings && (
-                <Settings
-                  handleDeleteAccount={handleDeleteAccount}
-                  handleLogout={handleLogout}
-                  handlePasswordChange={handlePasswordChange}
-                  handleShowEdit={handleShowEdit}
-                  handleShowCreateEvent={handleShowCreateEvent}
-                />
-              )}
-              {showEdit && (
-                <ProfileEdit
-                  handleEdit={handleEdit}
-                  id={id}
-                  usuario={usuario}
-                  handleShowEdit={handleShowEdit}
-                />
-              )}
-              {showEditPassword && <UpdatePassword handleEdit={handleEdit} />}
+              </div>
             </div>
-          ) : (
-            <div className="NoAhora">
-              <button className="btn-profile" onClick={handleFollow}>
-                Seguir
-              </button>
-              <button className="btn-profile" onClick={handleContact}>
-                Contactar
-              </button>
+
+            <div className="info-perfil">
+              <div className="nombre-btns">
+                <div className="anotherNombreBtns">
+                  <div className="nombre">
+                    <span>
+                      <h1 className="profileNombre">
+                        {name}
+                        {/*  {lastname} */}
+                        {verified && <VerifiedIcon />}
+                      </h1>
+                    </span>
+                    {!isCurrentUser && (
+                      <div className="profileFollow">
+                        <button className="btn-profile" onClick={handleFollow}>
+                          {followed ? "Dejar de seguir" : "Seguir"}
+                        </button>
+                        <button className="btn-profile" onClick={handleContact}>
+                          Contactar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="principalInfo">
+                    {city}, {Country}
+                    <div className="ocupation-container">
+                      {ocupationArray &&
+                        ocupationArray?.map((ocupation) => (
+                          <div className="ocupation" key={ocupation}>
+                            {ocupation}
+                          </div>
+                        ))}
+                    </div>
+                  </h3>
+                </div>
+              </div>
+              <div className="stas-profile">
+                <div className="btn-div">
+                  <button className="btn-stas" onClick={scrollToEventos}>
+                    {events?.length + " "} Eventos{" "}
+                    {/*  //! muestra total de eventos del artista */}
+                  </button>
+                  <button className="btn-stas" onClick={handleOnClickFollowers}>
+                    {followers?.length + " "} Seguidores
+                  </button>
+                  {showFollowers && (
+                    <FollowList
+                      userId={usuario.id}
+                      isCurrentUser={isCurrentUser}
+                      action="followers"
+                      setShowFollowers={setShowFollowers}
+                      setShowFollowings={setShowFollowings}
+                    />
+                  )}
+                  <button
+                    className="btn-stas"
+                    onClick={handleOnClickFollowings}
+                  >
+                    {followings?.length + " "} Seguidos
+                  </button>
+                  {showFollowings && (
+                    <FollowList
+                      userId={usuario.id}
+                      isCurrentUser={isCurrentUser}
+                      action="followings"
+                      setShowFollowers={setShowFollowers}
+                      setShowFollowings={setShowFollowings}
+                    />
+                  )}
+                </div>
+                <div className="redes">
+                  {links?.map((l, index) => {
+                    return (
+                      <div key={{ index }} className="redes-div">
+                        <h4>Otras redes!!</h4>
+                        <div className="container-links">
+                          {l.youtube && (
+                            <a
+                              href={l.youtube}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="youtube"
+                            >
+                              <YouTubeIcon />
+                            </a>
+                          )}
+
+                          {l.twitter && (
+                            <a
+                              href={l.twitter}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="twitter"
+                            >
+                              <TwitterIcon />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="ab-re">
+                <div className="aboutme">{aboutMe}</div>
+              </div>
             </div>
-          )}
+            <div className="btns">
+              {isCurrentUser ? (
+                <div className="settings-div">
+                  <button className="btn-ajustes" onClick={handleSettings}>
+                    <SettingsIcon />
+                  </button>
+                  {(showSettings || showEdit || showEditPassword) &&
+                    showComponents && (
+                      <Settings
+                        handleDeleteAccount={handleDeleteAccount}
+                        handleLogout={handleLogout}
+                        handlePasswordChange={handlePasswordChange}
+                        handleShowEdit={handleShowEdit}
+                        handleShowCreateEvent={handleShowCreateEvent}
+                      />
+                    )}
+                  {(showEdit || showEditPassword) && showComponents && (
+                    <ProfileEdit
+                      handleEdit={handleEdit}
+                      id={id}
+                      usuario={usuario}
+                      handleShowEdit={handleShowEdit}
+                    />
+                  )}
+                  {showEditPassword && showComponents && (
+                    <UpdatePassword handleEdit={handleEdit} />
+                  )}
+                </div>
+              ) : (
+                <div></div>
+              )}
+            </div>
+          </div>
+          <div className="div-eventos">
+            <div ref={eventosRef} className="titulo-ev">
+              Mis eventos
+            </div>
+            <div className="div-eventos-profile">
+              {events && events.length > 0 ? (
+                <div className="div-eventos-profile">
+                  {events.map((event, index) => (
+                    <CardsEvents
+                      key={index}
+                      id_art={event.id_Artist}
+                      name_art={event.name}
+                      event={event}
+                      handleDeleteEvent={handleDeleteEvent}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <EmptyCard id={id} />
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="div-eventos">
-        <div ref={eventosRef} className="titulo-ev">
-          Mis eventos
-        </div>
-         <div className="div-eventos-profile">{events?.map((event,index) => ( 
-         <CardsEvents
-            key={index}
-            id_art = {event.id_Artist}
-            name_art = {event.name}
-            event={event}
-            handleDeleteEvent= {handleDeleteEvent} 
-            /> ) ) }
-          </div> 
-      </div>
-    
-    </div>
-     ))}
+      )}
     </>
   );
 };

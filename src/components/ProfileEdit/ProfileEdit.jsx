@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 const ProfileEdit = ({ usuario, handleEdit, handleShowEdit }) => {
   const [errors, setErrors] = useState({});
-
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState("");
+  const [coverPhotoPreview, setCoverPhotoPreview] = useState("");
   const [options, setOptions] = useState([
     "Bailarin",
     "Cantante",
@@ -20,12 +21,7 @@ const ProfileEdit = ({ usuario, handleEdit, handleShowEdit }) => {
 
   const [input, setInput] = useState({
     name: usuario.name,
-    // lastname: usuario.lastname, //Aun no se ve reflejado
-    // nickName: usuario.nickName, //Aun no se ve reflejado
-    // profilePhoto: "",
-    // coverPhoto: "",
     email: usuario.email,
-    // password: usuario.password,
     city: usuario.city,
     Country: usuario.Country,
     ocupation: usuario.ocupation,
@@ -54,6 +50,9 @@ const ProfileEdit = ({ usuario, handleEdit, handleShowEdit }) => {
     }
     formData.append("ocupation", input.ocupation);
     handleEdit(formData);
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 800);
   }
 
   function addOcupation(ocupation, selected) {
@@ -75,23 +74,13 @@ const ProfileEdit = ({ usuario, handleEdit, handleShowEdit }) => {
       return ocupation;
     }
   }
+
+  const otherInput = document.querySelector('input[name="otherOccupation"]');
+  const otherChb = document.querySelector('input[name="other"]');
+
   function handleOccupationChange(e) {
     const selectedOption = e.target.value;
     const isSelected = e.target.checked;
-
-    // if (isSelected) {
-    //   setInput((input) => ({
-    //     ...input,
-    //     ocupation: [...input.ocupation, selectedOption],
-    //   }));
-    // } else {
-    //   setInput((input) => ({
-    //     ...input,
-    //     ocupation: input.ocupation.filter(
-    //       (option) => option !== selectedOption
-    //     ),
-    //   }));
-    // }
     if (isSelected) {
       setInput((input) => ({
         ...input,
@@ -103,87 +92,100 @@ const ProfileEdit = ({ usuario, handleEdit, handleShowEdit }) => {
         ocupation: remOcupation(input.ocupation, selectedOption),
       }));
     }
-
-    // check if "other" option is selected and a value is entered
-    const otherInput = document.querySelector('input[name="otherOccupation"]');
-    if (
-      otherInput &&
-      selectedOption === "other" &&
-      otherInput.value.trim() !== ""
-    ) {
-      setInput((input) => ({
-        ...input,
-        ocupation: [...input.ocupation, otherInput.value.trim()],
-      }));
-      otherInput.value = ""; // clear the input field
-    }
   }
 
+  console.log(options.reduce(remOcupation, input.ocupation));
+  const [otherOc, setOtherOc] = useState(
+    options.reduce(remOcupation, input.ocupation)
+  );
   function handleOnChange(e) {
     const property = e.target.name;
     const value = e.target.value;
-    if (property === "ocupation") {
-      setErrors(validate({ ...input, ocupation: [...input.ocupation, value] }));
-      setInput({
+    if (property === "otherOccupation") {
+      setInput((input) => ({
         ...input,
-        ocupation: [/*...input.ocupation,*/ value],
-      });
-    } else {
-      setInput({
+        ocupation: addOcupation(remOcupation(input.ocupation, otherOc), value),
+      }));
+      setOtherOc(value);
+      return;
+    }
+    setInput({
+      ...input,
+      [property]: value,
+    });
+    setErrors(
+      validate({
         ...input,
         [property]: value,
-      });
-      setErrors(
-        validate({
-          ...input,
-          [property]: value,
-        })
-      );
-    }
+      })
+    );
   }
-
+  const handleProfilePhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setProfilePhotoPreview("");
+    }
+  };
+  const handleCoverPhotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setCoverPhotoPreview("");
+    }
+  };
   return (
     <div className={styles.container}>
       <div className={styles.containerflex}>
-        <button className={styles.containerexit} onClick={handleShowEdit}>
+        <button className={styles.containerExit} onClick={handleShowEdit}>
           X
         </button>
         <form onSubmit={handleSubmit} className={styles.formContainer}>
-          {/* <div className="form-container__left">
-  return (
-    <>
-      <form onSubmit={handleSubmit} className="form-container">
-        {/* <div className="form-container__left">
-              <label>
-                {rutaImagen ? (
-                  <img
-                    className="form-picture"
-                    src={rutaImagen}
-                    alt="Imagen de perfil"
-                  />
-                ) : (
-                  <AccountCircleIcon />
-                )}
-                <button
-                  className="upload-picture-button"
-                  type="button"
-                  onClick={handleClick}
-                >
-                  Subir foto
-                </button> 
-                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
+          <div className={styles.filesContainer}>
+            {profilePhotoPreview && (
+              <div>
+                <img
+                  src={profilePhotoPreview}
+                  alt="Profile Photo Preview"
+                  style={{ maxWidth: "200px", maxHeight: "200px" }}
                 />
-                <br></br>
-                Registrate a<br></br> <b>Urban Club!</b>
-              </label>
-            </div> */}
-          <input type="file" name="profilePhoto"></input>
-          <input type="file" name="coverPhoto"></input>
+              </div>
+            )}
+            <input
+              type="file"
+              name="profilePhoto"
+              accept=".jpg, .jpeg, .png"
+              onChange={handleProfilePhotoChange}
+              className={styles.profileChange}
+            />
+            <br />
+            {coverPhotoPreview && (
+              <img
+                src={coverPhotoPreview}
+                alt="Cover Photo Preview"
+                style={{ maxWidth: "200px", maxHeight: "200px" }}
+              />
+            )}
+            <input
+              type="file"
+              name="coverPhoto"
+              accept=".jpg, .jpeg, .png"
+              onChange={handleCoverPhotoChange}
+              className={styles.bannerChange}
+            />
+          </div>
+          <br />
+
           <div className="form-container__middle">
             <label className="required">
               <div>
@@ -198,46 +200,6 @@ const ProfileEdit = ({ usuario, handleEdit, handleShowEdit }) => {
                 name="name"
               />
             </label>
-            {/* <label>
-            <div>
-              <span style={{ color: "red" }}>*</span> Apellido:
-            </div>
-            <input
-              type="text"
-              value={input.lastname}
-              onChange={handleOnChange}
-              onBlur={handleOnChange}
-              name="lastname"
-              maxLength={35}
-              required
-            />
-          </label> */}
-            {/* <label>
-              <div>
-                <span style={{ color: "red" }}>*</span> Correo:
-              </div>
-              <input
-                type="email"
-                value={input.email}
-                onChange={handleOnChange}
-                onBlur={handleOnChange}
-                name="email"
-                maxLength={45}
-                required
-              />
-            </label> */}
-            {/* <label>
-            <div>
-              <span style={{ color: "red" }}>*</span> Nickname:
-            </div>
-            <input
-              type="text"
-              value={input.nickName}
-              onChange={handleOnChange}
-              onBlur={handleOnChange}
-              name="nickName"
-            />
-          </label> */}
           </div>
           <div className="form-container__right">
             <label>
@@ -264,37 +226,32 @@ const ProfileEdit = ({ usuario, handleEdit, handleShowEdit }) => {
               <h3>Ocupaciones</h3>
               {options.map((option) => (
                 <label key={option}>
-                  <input
-                    type="checkbox"
-                    value={option}
-                    checked={input.ocupation.includes(option)}
-                    onChange={handleOccupationChange}
-                  />
-                  {option}
+                  <div className={styles.ocupationList}>
+                    <input
+                      type="checkbox"
+                      value={option}
+                      checked={input.ocupation.includes(option)}
+                      onChange={handleOccupationChange}
+                    />
+                    <div className={styles.ocupationName}>{option}</div>
+                  </div>
                 </label>
               ))}
-              <label>
-                <input
-                  type="checkbox"
-                  name="other"
-                  value="Otros"
-                  checked={input.ocupation.includes("Otros")}
-                  onChange={handleOccupationChange}
-                />
-                Otros
-              </label>
-              {input.ocupation.includes("Otros") && (
-                <input
+              <label>Otros</label>
+              {
+                /* { otherChb.checked && */ <input
                   type="text"
-                  value={input.value}
+                  value={otherOc}
                   name="otherOccupation"
+                  pattern="[a-zA-Z ]{3,15}"
+                  onChange={handleOnChange}
                   placeholder="Ingresa tu oficio"
                 />
-              )}
+              }
             </div>
-            <button className="upload-form-button" type="submit">
-              Save Changes
-            </button>
+            <div className={styles.submitButton}>
+              <button type="submit">Guardar cambios</button>
+            </div>
           </div>
         </form>
         <div className={styles.button}></div>
