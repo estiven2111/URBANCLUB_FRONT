@@ -4,7 +4,7 @@ const Success = () => {
     useEffect(()=>{
         setTimeout(()=> {
             window.close();
-        }, 5000)
+        }, 1000)
     },[])
 
     return (
