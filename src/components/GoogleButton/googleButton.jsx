@@ -12,13 +12,17 @@ const LoginButton = () => {
     console.log("entre a fetchaurh");
     // const response = await axios.get('https://pruebaback-production-0050.up.railway.app/artist/auth/user', {withCredentials:true}).catch((err) => {
     try {
-      let response = await axios.get('/artist/auth/user', {withCredentials:true})
+      // let response = await axios.get('/artist/auth/user', {withCredentials:true})
+      fetch('https://pruebaback-production-0050.up.railway.app/artist/auth/user',{withCredentials:true})
+      .then(res =>{
+        console.log(res);
+      })
      
-      if (response && response.data) {
-        const token = response.data
-        dispatch(loginSuccess({ token }))
-        //console.log("ahi esta el bendito token amigo!!!!!----->>>> ", response.data)
-      }
+      // if (response && response.data) {
+      //   const token = response.data
+      //   dispatch(loginSuccess({ token }))
+      //   //console.log("ahi esta el bendito token amigo!!!!!----->>>> ", response.data)
+      // }
     } catch (error) {
       console.log(error);
     }
