@@ -9,18 +9,14 @@ const LoginButton = () => {
   const dispatch = useDispatch();
     //! Codigo para autorizar acceso
   const fetchAuthUser = async() => {
+    console.log("entre a fetchaurh");
     // const response = await axios.get('https://pruebaback-production-0050.up.railway.app/artist/auth/user', {withCredentials:true}).catch((err) => {
-    //   const response = await axios.get('/artist/auth/user', {withCredentials:true}).catch((err) => {
+      const response = await axios.get('/artist/auth/user', {withCredentials:true}).catch((err) => {
        
-    //   console.log("Not properly authenticated")
-    // });
-    let  response =""
-    fetch('https://pruebaback-production-0050.up.railway.app/artist/auth/user', {withCredentials:true})
-    .then(res =>{
-      console.log(res);
-      response = res
-    })
-    console.log(response);
+      console.log("Not properly authenticated")
+    });
+   
+   
     if (response && response.data) {
       const token = response.data
       dispatch(loginSuccess({ token }))
