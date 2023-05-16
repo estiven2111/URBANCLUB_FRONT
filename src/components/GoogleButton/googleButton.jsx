@@ -11,17 +11,19 @@ const LoginButton = () => {
   const fetchAuthUser = async() => {
     console.log("entre a fetchaurh");
     // const response = await axios.get('https://pruebaback-production-0050.up.railway.app/artist/auth/user', {withCredentials:true}).catch((err) => {
-      const response = await axios.get('/artist/auth/user', {withCredentials:true}).catch((err) => {
-       
-      console.log("Not properly authenticated")
-    });
-   
-   
-    if (response && response.data) {
-      const token = response.data
-      dispatch(loginSuccess({ token }))
-      //console.log("ahi esta el bendito token amigo!!!!!----->>>> ", response.data)
+    try {
+      let response = await axios.get('/artist/auth/user', {withCredentials:true})
+     
+      if (response && response.data) {
+        const token = response.data
+        dispatch(loginSuccess({ token }))
+        //console.log("ahi esta el bendito token amigo!!!!!----->>>> ", response.data)
+      }
+    } catch (error) {
+      console.log(error);
     }
+   
+  
   }
 
   const handleLogin = async () => {
