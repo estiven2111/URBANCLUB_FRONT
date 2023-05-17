@@ -168,6 +168,7 @@ const Events = ({ showFilters }) => {
               />
             );
           }
+          return <></>
         })}
       </div>
     </div>
