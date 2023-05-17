@@ -1,11 +1,11 @@
-import React from 'react';
-import axios from 'axios';
-import { loginSuccess } from '../../redux/authSlice';
-import { useDispatch } from 'react-redux';
+import React from "react";
+import axios from "axios";
+import { loginSuccess } from "../../redux/authSlice";
+import { useDispatch } from "react-redux";
+import GoogleIcon from "@mui/icons-material/Google";
 import {URLS} from "../../env"
 
 const LoginButton = () => {
-
   const dispatch = useDispatch();
     //! Codigo para autorizar acceso
   const fetchAuthUser = async() => {
@@ -33,12 +33,17 @@ const LoginButton = () => {
   
   }
 
-  const handleLogin = async () => {
+  const handleLogin = async (event) => {
+    event.preventDefault();
     let timer = null;
     const googleLoginURL = `${URLS}/artist/auth/google`
     console.log("loginsucces");
     // const googleLoginURL = "https://pruebaback-production-0050.up.railway.app/artist/auth/google"
-    const newWindow = window.open(googleLoginURL,"_blank","width=350,height=450")
+    const newWindow = window.open(
+      googleLoginURL,
+      "_blank",
+      "width=350,height=450"
+    );
 
       newWindow.addEventListener('message', event => {
         
@@ -57,7 +62,8 @@ const LoginButton = () => {
   };
 
 
-  const googleLogIn = () => {
+  const googleLogIn = (e) => {
+    e.preventDefault()
     const popup = window.open(`${URLS}/artist/auth/google`, "_blank", `location=none width=620 height=700 toolbar=no status=no menubar=no scrollbars=yes resizable=yes`)
 
     window.addEventListener('message', event => {
@@ -76,7 +82,25 @@ const LoginButton = () => {
   }
 
   return (
-    <button onClick={googleLogIn}>Iniciar sesión con Google</button>
+    <button
+      onClick={googleLogIn}
+      className="google"
+      style={{
+        padding: "10px",
+        paddingInline: "10px",
+        marginBlock: "10px",
+        borderRadius: "10px",
+        border: "none",
+        boxShadow: "0 0 5px rgba(0, 0, 0, 0.3);",
+        transition: "all 0.45s ease;",
+        display: "flex",
+        alignItems: "center",
+        gap: "3px",
+      }}
+    >
+      Iniciar sesión con Google{"  "}
+      <GoogleIcon />
+    </button>
   );
 };
 
