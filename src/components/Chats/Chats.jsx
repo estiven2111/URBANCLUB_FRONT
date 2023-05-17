@@ -1,8 +1,9 @@
 import './Chats.css'
 //import React, { useEffect, useState } from 'react'
 import axios from "axios"
+import { URLS } from '../../env';
 import { io } from "socket.io-client";
-const socket = io("http://localhost:3001");
+const socket = io(URLS);
 
 function ChatOnline({ onlineUser, currentId, setCurrentChat, online }) {
 

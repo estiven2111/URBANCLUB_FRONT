@@ -33,11 +33,12 @@ import LoginSuccess from "./components/GoogleButton/loginSuccess";
 import UpdateEvents from "./components/updateEvent/UpdateEvents";
 import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
 import NewPassword from "./components/NewPassword/NewPassword";
+import { URLS } from "./env";
 import DetailsEvents from "./components/ComponentEvents/DetailsEvents/DetailsEvents";
 import TermsAndConditions from "./components/TermsAndConditions/TermsAndConditions";
 import Admin from "./components/Admin/Admin";
 import { io } from "socket.io-client";
-const socket = io("http://localhost:3001");
+const socket = io(URLS);
 
 
 function App() {
