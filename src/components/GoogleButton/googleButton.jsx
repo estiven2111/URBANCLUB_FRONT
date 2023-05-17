@@ -36,23 +36,47 @@ const LoginButton = () => {
   const handleLogin = async () => {
     let timer = null;
     const googleLoginURL = `${URLS}/artist/auth/google`
-    console.log(googleLoginURL);
+    console.log("loginsucces");
     // const googleLoginURL = "https://pruebaback-production-0050.up.railway.app/artist/auth/google"
     const newWindow = window.open(googleLoginURL,"_blank","width=350,height=450")
 
-    if(newWindow) {
-        timer = setInterval(() => {
-            if(newWindow.closed) {
-                console.log("We are authenticated");
-                fetchAuthUser() //! activar con la funcion de arriba
-                if(timer) clearInterval(timer)
-            } 
-        }, 500)
-    }
+      newWindow.addEventListener('message', event => {
+        
+        console.log(event.origin);
+        if(event.origin == URLS) {
+        if(event.data) {
+           dispatch(loginSuccess( event.data.token ))
+          
+          // localStorage.setItem('token', event.data.token)
+
+          newWindow.close()
+        }
+
+        }
+      })
   };
 
+
+  const googleLogIn = () => {
+    const popup = window.open(`${URLS}/artist/auth/google`, "_blank", `location=none width=620 height=700 toolbar=no status=no menubar=no scrollbars=yes resizable=yes`)
+
+    window.addEventListener('message', event => {
+      if (event.origin === `${URLS}`) {
+
+        if (event.data) {
+          console.log(event.data)
+          dispatch(loginSuccess( event.data ))
+          // localStorage.setItem('token', event.data.token)
+
+          popup.close()
+
+        }
+      }
+    })
+  }
+
   return (
-    <button onClick={handleLogin}>Iniciar sesión con Google</button>
+    <button onClick={googleLogIn}>Iniciar sesión con Google</button>
   );
 };
 
