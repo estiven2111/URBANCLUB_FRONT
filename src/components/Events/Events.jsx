@@ -32,11 +32,11 @@ const Events = ({ showFilters }) => {
   const [selectedFilters, setSelectedFilters] = useState([]);
 
   // Paginación
-  // const currentPage = useSelector((state) => state.events.pag);
-  // const [eventsPerPage, setEventsPerPage] = useState(6);
-  // const indexOfLastEvent = currentPage * eventsPerPage;
-  // const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  // const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
+  const currentPage = useSelector((state) => state.events.pag);
+  const [eventsPerPage, setEventsPerPage] = useState(6);
+  const indexOfLastEvent = currentPage * eventsPerPage;
+  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+  const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
 
   const handleLocationChange = (location) => {
     setSelectedLocation(location);
@@ -142,9 +142,9 @@ const Events = ({ showFilters }) => {
 
 
       <br/>
-      {/* <Paginado events={events.length} eventsPerPage={eventsPerPage} /> */}
+      <Paginado events={events.length} eventsPerPage={eventsPerPage} />
       <div className={style.containerHelp}>
-        {/* {events && events.map((item, index) => {
+        {events && events.map((item, index) => {
           if (islogin.isAuthenticated) {
             if (islogin.user.id !== item.id_Artist) {
               return (
@@ -169,7 +169,7 @@ const Events = ({ showFilters }) => {
             );
           }
           return <></>
-        })} */}
+        })}
       </div>
     </div>
   );
