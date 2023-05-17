@@ -144,7 +144,7 @@ const Events = ({ showFilters }) => {
       <br/>
       {/* <Paginado events={events.length} eventsPerPage={eventsPerPage} /> */}
       <div className={style.containerHelp}>
-        {events && events.map((item, index) => {
+        {/* {events && events.map((item, index) => {
           if (islogin.isAuthenticated) {
             if (islogin.user.id !== item.id_Artist) {
               return (
@@ -169,7 +169,7 @@ const Events = ({ showFilters }) => {
             );
           }
           return <></>
-        })}
+        })} */}
       </div>
     </div>
   );
