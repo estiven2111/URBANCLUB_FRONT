@@ -4,7 +4,7 @@ function AboutEstiven() {
   return (
     <div className={style.container}>
       <div className={style.img}>
-        <img src="/assets/Estiven.jpeg" alt="" />
+      <img src="../../assets/Estiven.jpeg" alt="" />
       </div>
       <div className={style.description}>
         <h2>DESCRIPCION</h2>
