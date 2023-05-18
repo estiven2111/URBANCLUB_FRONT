@@ -140,11 +140,16 @@ const Artists = () => {
               onChange={(event) => setSelectedLocation(event.target.value)}
             >
               <option value="">Todos los países</option>
-              {locations?.map((Country) => (
-                <option key={Country} value={Country}>
-                  {Country}
-                </option>
-              ))}
+              {locations?.map((Country) => {
+                if (Country.trim() !== "") {
+                  return (
+                    <option key={Country} value={Country}>
+                      {Country}
+                    </option>
+                  );
+                }
+                return null;
+              })}
             </select>
             <select
               value={orden}
@@ -186,31 +191,31 @@ const Artists = () => {
           )}
           {!isLoading && currentArtists.length > 0
             ? currentArtists.map((item) => {
-                //console.log("HOLAAAAAAA", currentArtists);
-                let ocupacion;
-                item.ocupation !== undefined
-                  ? (ocupacion = item.ocupation)
-                  : (ocupacion = "");
-                return (
-                  <div key={item.id} className={style.containerCar}>
-                    <CardsArt
-                      id={item.id}
-                      name={item.name}
-                      profilePhoto={item.profilePhoto}
-                      coverPhoto={item.coverPhoto}
-                      ocupation={ocupacion}
-                      aboutMe={item.aboutMe}
-                      Country={item.Country}
-                      city={item.city}
-                      Events={item.Events}
-                    />
-                  </div>
-                );
-              })
+              //console.log("HOLAAAAAAA", currentArtists);
+              let ocupacion;
+              item.ocupation !== undefined
+                ? (ocupacion = item.ocupation)
+                : (ocupacion = "");
+              return (
+                <div key={item.id} className={style.containerCar}>
+                  <CardsArt
+                    id={item.id}
+                    name={item.name}
+                    profilePhoto={item.profilePhoto}
+                    coverPhoto={item.coverPhoto}
+                    ocupation={ocupacion}
+                    aboutMe={item.aboutMe}
+                    Country={item.Country}
+                    city={item.city}
+                    Events={item.Events}
+                  />
+                </div>
+              );
+            })
             : !isLoading &&
-              currentArtists.length === 0 && (
-                <Errors404search></Errors404search>
-              )}
+            currentArtists.length === 0 && (
+              <Errors404search></Errors404search>
+            )}
         </div>
         <br /> <br />
       </div>
