@@ -22,7 +22,8 @@ import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import MessageIcon from "@mui/icons-material/Message";
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+
 function DetailsEvents() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -47,6 +48,8 @@ function DetailsEvents() {
     };
     getEvent();
   }, [dispatch, id]);
+  console.log(event);
+  console.log(islogin);
 
   const ubicationHandler = () => {
     if (
@@ -131,9 +134,11 @@ function DetailsEvents() {
 
         const buy = await dispatch(buyTicket(compraticket));
         let timer = null;
+        console.log(buy);
         const urlPay = buy.link;
 
         const newWindow = window.open(urlPay, "_blank", "width=550,height=550");
+        console.log(newWindow);
         let eventd;
 
         if (newWindow) {
@@ -244,7 +249,7 @@ function DetailsEvents() {
                   <div className={style.infoText}>
                     <br />
                     <h5>
-                      <ApartmentIcon /> {`${detailEvent.city},${detailEvent.Country}`}
+                      <ApartmentIcon /> {detailEvent.nameArena}
                     </h5>
                     <h5>
                       <PlaceIcon /> {detailEvent.location}
@@ -253,7 +258,8 @@ function DetailsEvents() {
                       <CalendarMonthIcon /> {detailEvent.date}
                     </h5>
                     <h3 className={style.money}>
-                      <AttachMoneyIcon/>{detailEvent.price} USD
+                      <AttachMoneyIcon />
+                      {detailEvent.price} USD
                     </h3>
                     <h4>Descripcion</h4>
                     <p>{detailEvent.Description}</p>

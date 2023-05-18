@@ -20,6 +20,7 @@ function FollowList({
     if (action === "followers") {
       const getFollowersList = async () => {
         const { data } = await axios.get(`artist/followers/${userId}`);
+        console.log(data);
         setFollows(data);
       };
       getFollowersList();

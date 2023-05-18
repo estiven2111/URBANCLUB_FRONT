@@ -151,6 +151,7 @@ const Artists = () => {
                 return null;
               })}
             </select>
+
             <select
               value={orden}
               onChange={(event) => setOrden(event.target.value)}
@@ -172,14 +173,6 @@ const Artists = () => {
               Limpiar
             </button>
           </form>
-          {/* <div className={style.selectedFilters}>
-            {selectedFilters.map((filter) => (
-              <div key={filter} className={style.selectedFilter}>
-                <span>{filter}</span>
-                <button onClick={() => handleRemoveFilter(filter)}>X</button>
-              </div>
-            ))}
-          </div> */}
         </div>
         <br />
         <Paginado artistsPerPage={artistsPerPage} artistas={artistas.length} />
@@ -191,31 +184,30 @@ const Artists = () => {
           )}
           {!isLoading && currentArtists.length > 0
             ? currentArtists.map((item) => {
-              //console.log("HOLAAAAAAA", currentArtists);
-              let ocupacion;
-              item.ocupation !== undefined
-                ? (ocupacion = item.ocupation)
-                : (ocupacion = "");
-              return (
-                <div key={item.id} className={style.containerCar}>
-                  <CardsArt
-                    id={item.id}
-                    name={item.name}
-                    profilePhoto={item.profilePhoto}
-                    coverPhoto={item.coverPhoto}
-                    ocupation={ocupacion}
-                    aboutMe={item.aboutMe}
-                    Country={item.Country}
-                    city={item.city}
-                    Events={item.Events}
-                  />
-                </div>
-              );
-            })
+                let ocupacion;
+                item.ocupation !== undefined
+                  ? (ocupacion = item.ocupation)
+                  : (ocupacion = "");
+                return (
+                  <div key={item.id} className={style.containerCar}>
+                    <CardsArt
+                      id={item.id}
+                      name={item.name}
+                      profilePhoto={item.profilePhoto}
+                      coverPhoto={item.coverPhoto}
+                      ocupation={ocupacion}
+                      aboutMe={item.aboutMe}
+                      Country={item.Country}
+                      city={item.city}
+                      Events={item.Events}
+                    />
+                  </div>
+                );
+              })
             : !isLoading &&
-            currentArtists.length === 0 && (
-              <Errors404search></Errors404search>
-            )}
+              currentArtists.length === 0 && (
+                <Errors404search></Errors404search>
+              )}
         </div>
         <br /> <br />
       </div>
