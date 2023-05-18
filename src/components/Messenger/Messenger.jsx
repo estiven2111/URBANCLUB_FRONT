@@ -179,7 +179,6 @@ function Messenger() {
     scrollRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
-  //console.log(conversations);
 
   return (
     <div className="messenger">

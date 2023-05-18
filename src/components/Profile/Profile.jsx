@@ -132,10 +132,12 @@ const Profile = () => {
   };
 
   const handleShowEdit = () => {
+    setShowEditPassword(false);
     setShowEdit(!showEdit);
   };
 
   const handlePasswordChange = () => {
+    setShowEdit(false);
     setShowEditPassword(!showEditPassword);
   };
 
@@ -179,6 +181,7 @@ const Profile = () => {
 
   const handleEdit = async (input) => {
     const artistUpdated = dispatch(updateArtist(id, input)).data;
+    console.log(input);
     swal({
       title: "PERFIL ACTUALIZADO",
       text: `Tu perfil se ha actualizado con exito`,
@@ -474,7 +477,7 @@ const Profile = () => {
                         handleShowCreateEvent={handleShowCreateEvent}
                       />
                     )}
-                  {(showEdit || showEditPassword) && showComponents && (
+                  {showEdit && showComponents && (
                     <ProfileEdit
                       handleEdit={handleEdit}
                       id={id}
@@ -483,7 +486,8 @@ const Profile = () => {
                     />
                   )}
                   {showEditPassword && showComponents && (
-                    <UpdatePassword handleEdit={handleEdit} />
+                    <UpdatePassword handleEdit={handleEdit} 
+                                    handlePasswordChange={handlePasswordChange}/>
                   )}
                 </div>
               ) : (

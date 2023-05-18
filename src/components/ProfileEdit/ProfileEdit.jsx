@@ -95,7 +95,7 @@ const ProfileEdit = ({ usuario, handleEdit, handleShowEdit }) => {
     }
   }
 
-  //console.log(options.reduce(remOcupation, input.ocupation));
+  console.log(options.reduce(remOcupation, input.ocupation));
   const [otherOc, setOtherOc] = useState(
     options.reduce(remOcupation, input.ocupation)
   );
