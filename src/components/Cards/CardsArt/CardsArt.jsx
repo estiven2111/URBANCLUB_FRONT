@@ -54,7 +54,6 @@ const CardsArt = ({
   const handleMouseLeave = () => {
     setIsOverlayVisible(false);
   };
-  console.log();
   return (
     <NavLink className={style.Link} to={`/profile/${id}`}>
       <div className={`${style.Container} ${style.overlayContainer}`}>

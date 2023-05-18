@@ -31,8 +31,6 @@ function EventMap({ location }) {
             map: mapInstance,
             title: "Nombre Del Lugar de CrearEvento",
           });
-          console.log(marker);
-          console.log(map);
         } else {
           console.error(
             "Geocode no pudo encontrar el lugar por lo siguiente:",

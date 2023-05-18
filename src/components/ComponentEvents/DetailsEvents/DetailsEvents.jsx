@@ -47,8 +47,6 @@ function DetailsEvents() {
     };
     getEvent();
   }, [dispatch, id]);
-  console.log(event);
-  console.log(islogin);
 
   const ubicationHandler = () => {
     if (
@@ -133,11 +131,9 @@ function DetailsEvents() {
 
         const buy = await dispatch(buyTicket(compraticket));
         let timer = null;
-        console.log(buy);
         const urlPay = buy.link;
 
         const newWindow = window.open(urlPay, "_blank", "width=550,height=550");
-        console.log(newWindow);
         let eventd;
 
         if (newWindow) {

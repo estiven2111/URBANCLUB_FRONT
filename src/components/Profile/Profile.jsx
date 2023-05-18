@@ -179,7 +179,6 @@ const Profile = () => {
 
   const handleEdit = async (input) => {
     const artistUpdated = dispatch(updateArtist(id, input)).data;
-    console.log(input);
     swal({
       title: "PERFIL ACTUALIZADO",
       text: `Tu perfil se ha actualizado con exito`,
