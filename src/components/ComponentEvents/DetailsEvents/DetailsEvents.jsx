@@ -48,8 +48,6 @@ function DetailsEvents() {
     };
     getEvent();
   }, [dispatch, id]);
-  console.log(event);
-  console.log(islogin);
 
   const ubicationHandler = () => {
     if (
