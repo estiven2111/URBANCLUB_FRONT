@@ -30,6 +30,10 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import EmptyCard from "../Cards/CardsEvents/EmptyCard";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { io } from "socket.io-client";
+import { URLS } from "../../env";
+const socket = io(URLS);
+
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -94,17 +98,20 @@ const Profile = () => {
   }, [id]);
 
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const res = await axios.get("/artist/login/me");
-        //console.log(res.data.followings)
-        setFollowed(res.data.followings.some(follow => follow.following_Id === usuario?.id))
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getUser();
-  }, [usuario.id, currentUser.user.id]);
+    if(!isCurrentUser){
+      const getUser = async () => {
+        try {
+          const res = await axios.get("/artist/login/me");
+          //const res = await axios.get(`/artist/4`)
+          //console.log(res.data.followings)
+          setFollowed(res.data.followings.some(follow => follow.following_Id === usuario?.id))
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      getUser();
+    }
+  }, [usuario.id, isCurrentUser]);
 
   // const [prevId, setPrevId] = useState(id);
 
@@ -174,12 +181,15 @@ const Profile = () => {
     const artistUpdated = dispatch(updateArtist(id, input)).data;
     console.log(input);
     swal({
-      title: "ARTISTA ACTUALIZADO",
-      text: `Artista  ${input.name} actualizado con exito`,
+      title: "PERFIL ACTUALIZADO",
+      text: `Tu perfil se ha actualizado con exito`,
       icon: "success",
       buttons: "Aceptar",
     }).then((res) => {
-      if (res) window.location.reload();
+
+      // if (res) window.location.reload(); 
+      //porque estaba este windows realoaded?, quite este codigo y volvio a funcar el cambio de foto en navbar
+
     });
     setShowEdit(false);
     setShowSettings(false);
@@ -244,9 +254,14 @@ const Profile = () => {
 
   const handleContact = async () => {
     if (currentUser.isAuthenticated && !isCurrentUser) {
-      const res = await axios.get(
+      const { data } = await axios.get(
         `/conversation/${currentUser.user.id}/${usuario.id}`
       );
+      const obj = {
+        id: data.id,
+        members: data.members
+      }
+      socket.emit("newConversation", obj);
       navigate("/messenger");
       return;
     }
@@ -310,7 +325,7 @@ const Profile = () => {
         <div className="container">
           <div className="portada-profile">
             <img src={coverPhoto} alt="" />
-            <div className="rating-g">4.3</div>
+
           </div>
           <div className="prim-profile">
             <div className="prim-ocupacion">
@@ -336,7 +351,7 @@ const Profile = () => {
                     </span>
                     {!isCurrentUser && (
                       <div className="profileFollow">
-                        <button className="btn-profile" onClick={handleFollow}>
+                        <button className={followed ? "btn-profile-act" : "btn-profile"} onClick={handleFollow}>
                           {followed ? "Dejar de seguir" : "Seguir"}
                         </button>
                         <button className="btn-profile" onClick={handleContact}>

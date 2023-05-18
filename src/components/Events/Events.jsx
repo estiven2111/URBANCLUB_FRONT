@@ -51,7 +51,7 @@ const Events = ({ showFilters }) => {
   };
 
   useEffect(() => {
-     dispatch (pagNum(1));
+    dispatch(pagNum(1));
     // dispatch(FilterArtists(selectedCategory));
     handlesFilterEvents();
   }, [date, price, ubicacion]);
@@ -91,11 +91,15 @@ const Events = ({ showFilters }) => {
 
   return (
     <div className={style.container}>
-      {
-        showFilters ? (
-          <div className={style.eventsFilters}>
+      {showFilters ? (
+        <div className={style.eventsFilters}>
+          <div className={style.eventsFiltersFlex}>
             <form className={style.eventsFilters}>
-              <select value={date} onChange={(e) => setDate(e.target.value)}>
+              <select
+                classname={style.filtersButton}
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              >
                 <option hidden value="">
                   Fechas
                 </option>
@@ -107,17 +111,19 @@ const Events = ({ showFilters }) => {
 
               <select
                 value={price}
+                classname={style.filtersButton}
                 onChange={(event) => setPrice(event.target.value)}
               >
                 <option value="">Precios</option>
-                <option value="0">Gratis</option>
-                <option value="1-50">Rango medio</option>
-                <option value="51-100">Rango alto</option>
-                <option value="101 a mas">Rango maximo</option>
+                {/* <option value="0">Gratis</option> */}
+                <option value="1-50">1 a 50 USD</option>
+                <option value="51-100">51 a 100 USD</option>
+                <option value="101 a mas">+ 100 USD</option>
               </select>
 
               <select
                 value={ubicacion}
+                classname={style.filtersButton}
                 onChange={(event) => setUbicacion(event.target.value)}
               >
                 <option value="">Todos los países</option>
@@ -131,20 +137,24 @@ const Events = ({ showFilters }) => {
 
               <button
                 type="button"
+                className={style.filtersSubmit}
                 onClick={() => (setDate(""), setPrice(""), setUbicacion(""))}
               >
                 Limpiar
               </button>
             </form>
+            <Paginado
+              events={events.length}
+              eventsPerPage={eventsPerPage}
+            />
           </div>
-        ) : null
-      }
+        </div>
+      ) : null}
 
+      <br />
 
-      <br/>
-      <Paginado events={events.length} eventsPerPage={eventsPerPage} />
       <div className={style.containerHelp}>
-        {currentEvents && currentEvents.map((item, index) => {
+        {currentEvents?.map((item, index) => {
           if (islogin.isAuthenticated) {
             if (islogin.user.id !== item.id_Artist) {
               return (
@@ -168,7 +178,6 @@ const Events = ({ showFilters }) => {
               />
             );
           }
-          return <></>
         })}
       </div>
     </div>
