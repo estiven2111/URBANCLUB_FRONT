@@ -330,7 +330,7 @@ function DetailsEvents() {
                       rel="noreferrer"
                     ></a>
                     <br />
-                    <a
+                    {/* <a
                       href="https://www.google.com/maps/place/Teatro+Gran+Rex/@-34.6033873,-58.5313019,12z/data=!4m10!1m2!2m1!1sGran+Rex!3m6!1s0x95bccaceed5746b9:0xf933ab84305babc0!8m2!3d-34.6033873!4d-58.3788666!15sCghHcmFuIFJleJIBF3BlcmZvcm1pbmdfYXJ0c190aGVhdGVy4AEA!16s%2Fm%2F05bzpqm"
                       target="_blank"
                       rel="noreferrer"
@@ -339,7 +339,7 @@ function DetailsEvents() {
                         Compralo desde Teatro Gran Rex{" "}
                         <StoreMallDirectoryIcon />
                       </button>
-                    </a>
+                    </a> */}
                   </div>
                 </section>
                 <section
