@@ -195,8 +195,9 @@ const Profile = () => {
       // if (res) window.location.reload();
       //porque estaba este windows realoaded?, quite este codigo y volvio a funcar el cambio de foto en navbar
     });
-    setShowEdit(false);
-    setShowSettings(false);
+    handleSettings();
+    // setShowEdit(false);
+    // setShowSettings(false);
   };
 
   const handleLogout = () => {
